@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { ColumnDef } from '@tanstack/react-table'
 
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react'
@@ -14,71 +15,85 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
-// export type User = {
-//   id: string
-//   name: string
-//   emaiL: string
-//   image: string
-//   lastSeen: string
-// }
 
-export const columns  = [
+
+export const columns = [
+
+{
+  id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
-    accessorKey: 'name',
+    accessorKey: 'id',
     header: ({ column }) => {
       return (
         <Button
-        className=" h-fit"
+          className=" h-fit"
           variant='ghost'
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Name
+          ID
           <ArrowUpDown className='w-4 h-4 ml-2' />
         </Button>
       )
     }
   },
   {
-    accessorKey: 'email',
-    header: 'Email'
-  },
-  {
-    accessorKey: 'lastSeen',
-    header: 'Last seen',
-    cell: ({ row }) => {
-      const date = new Date(row.getValue('lastSeen'))
-      const formatted = date.toLocaleDateString()
-      return <span className='font-semibold '>{formatted}</span>
-    }
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      const user = row.original
-
+    accessorKey: 'attributes.purpose',
+    // header: 'Purpose'
+    header: ({ column }) => {
       return (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant='ghost' className='w-8 h-8 p-0'>
-                <span className='sr-only'>Open menu</span>
-                <MoreHorizontal className='w-4 h-4' />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(user.id)}
-              >
-                Copy user ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>View customer</DropdownMenuItem>
-              <DropdownMenuItem>View payment details</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
+        <Button
+          className=" h-fit"
+          variant='ghost'
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Purpose
+          <ArrowUpDown className='w-4 h-4 ml-2' />
+        </Button>
       )
     }
-  }
+  },
+  {
+    id: "pokath",
+    // http://115.127.24.187:1337/
+    accessorKey: 'attributes.icon.data.attributes.formats.small',
+    // accessorKey: 'attributes.createdAt',
+    header: 'createdAt',
+    cell: ({ row }) => {
+      const date = row.getValue('pokath');
+      return date?.url ? <Image src={"http://115.127.24.187:1337" + date.url} width={24} height={24} alt={date?.mime} className='w-2.0 h-2.0 ' />
+        : <span className='font-popping text-sm'>{date?.mime}</span>
+
+    }
+  },
+  {
+    id: "someid",
+    accessorKey: 'attributes.publishedAt',
+    header: 'Actions',
+    cell: ({ row }) => {
+      const date = row.getValue('someid');
+
+
+      return <span className='font-semibold '>{JSON.stringify(date)}</span>
+    }
+  },
 ]

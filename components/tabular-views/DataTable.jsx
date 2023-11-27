@@ -1,11 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import {
-  Plus
-
-} from "lucide-react";
-
+import { useEffect, useState } from 'react'
+import { Plus } from "lucide-react";
+import { columns } from './columns'
 import {
   ColumnDef,
   flexRender,
@@ -27,20 +24,19 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-
-
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-// interface DataTableProps<TData, TValue> {
-//   columns: ColumnDef<TData, TValue>[]
-//   data: TData[]
-// }
+async function getUsers() {
+  const res = await fetch(
+    'http://115.127.24.187:1337/api/learning-purposes?pagination[page]=2&pagination[pageSize]=25&sort=purpose:asc&populate=icon'
+  )
+  const data = await res.json()
+  return data;
+}
+export function DataTable() {
 
-export function DataTable({
-  columns,
-  data
-}) {
+  const [data, setData] = useState([]);
   const [sorting, setSorting] = useState([])
   const [columnFilters, setColumnFilters] = useState([])
   const [columnVisibility, setColumnVisibility] = useState({})
@@ -62,6 +58,14 @@ export function DataTable({
     getPaginationRowModel: getPaginationRowModel()
   })
 
+  useEffect(() => {
+    const fetch = async () => {
+      const apiData = await getUsers();
+      setData(apiData.data);
+    };
+    fetch();
+  }, [data])
+
   return (
     <div className='flex flex-col gap-2'>
 
@@ -74,10 +78,10 @@ export function DataTable({
           onChange={event =>
             table.getColumn('name')?.setFilterValue(event.target.value)
           }
-          className='h-fit w-10.6'
+          className='h-fit min-w-10.6 max-w-[300px]  py-0.25'
         />
 
-        <Button className="flex items-center gap-2 h-fit" variant="outline">
+        <Button className="flex items-center gap-2 py-0.25 h-fit" variant="outline">
           <Plus className='w-1.25 h-1.25' />
           Add New
         </Button>  </div>
@@ -153,6 +157,8 @@ export function DataTable({
           Next
         </Button>
       </div>
+
+      {JSON.stringify(data[0])}
     </div>
   )
 }
