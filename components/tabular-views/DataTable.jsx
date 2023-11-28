@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Plus } from "lucide-react";
 import { columns } from './columns'
 import {
@@ -29,7 +29,7 @@ import { Input } from '@/components/ui/input'
 
 async function getUsers() {
   const res = await fetch(
-    'http://115.127.24.187:1337/api/learning-purposes?pagination[page]=2&pagination[pageSize]=25&sort=purpose:asc&populate=icon'
+    'http://115.127.24.187:1337/api/learning-purposes?pagination[page]=2&pagination[pageSize]=5&sort=purpose:asc&populate=icon'
   )
   const data = await res.json()
   return data;
@@ -40,6 +40,7 @@ export function DataTable() {
   const [sorting, setSorting] = useState([])
   const [columnFilters, setColumnFilters] = useState([])
   const [columnVisibility, setColumnVisibility] = useState({})
+  const [rowSelection, setRowSelection] = useState({})
 
   const table = useReactTable({
     data,
@@ -55,7 +56,8 @@ export function DataTable() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel()
+    getPaginationRowModel: getPaginationRowModel(),
+    // onRowSelectionChange: setRowSelection,
   })
 
   useEffect(() => {
@@ -74,9 +76,9 @@ export function DataTable() {
 
         <Input
           placeholder='Filter purpose ...'
-          value={(table.getColumn('name')?.getFilterValue()) ?? ''}
+          value={(table.getColumn('id_purpose_cell')?.getFilterValue()) ?? ''}
           onChange={event =>
-            table.getColumn('name')?.setFilterValue(event.target.value)
+            table.getColumn('id_purpose_cell')?.setFilterValue(event.target.value)
           }
           className='h-fit min-w-10.6 max-w-[300px]  py-0.25'
         />
@@ -139,23 +141,31 @@ export function DataTable() {
       </div>
 
       {/* Pagination */}
-      <div className='flex items-center justify-end py-4 space-x-2'>
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
+      <div className='flex items-center justify-between py-4 space-x-2'>
+
+        <div className="  text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+        <div className='flex gap-3'>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+
       </div>
 
       {JSON.stringify(data[0])}
